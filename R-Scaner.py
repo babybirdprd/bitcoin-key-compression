@@ -1,5 +1,5 @@
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import sys
 from colorama import init
@@ -10,21 +10,21 @@ def rscan(addr):
 	"""Check address for duplicated r values."""
 	# TODO: add BCI API check address
 
-	print "ADDRESS-R-SCAN: "
+	print("ADDRESS-R-SCAN: ")
 	
 	urladdr = 'https://blockchain.info/address/%s?format=json&offset=%s'
 
 
-	addrdata = json.load(urllib2.urlopen(urladdr % (addr, '0')))
+	addrdata = json.load(urllib.request.urlopen(urladdr % (addr, '0')))
 	ntx = addrdata['n_tx']
-	print (Fore.CYAN + "Data for pubkey: " + str(addr) + " has " + str(addrdata['n_tx']).center(6) + "Tx%s" % 's'[ntx==1:])
+	print((Fore.CYAN + "Data for pubkey: " + str(addr) + " has " + str(addrdata['n_tx']).center(6) + "Tx%s" % 's'[ntx==1:]))
 	#print "number of txs: " + str(addrdata['n_tx'])
 
 
 	txs = []
 	for i in range(0, ntx//50 + 1):
 		sys.stderr.write("\nFetching Txs from offset\t%s\n" % str(i*50))
-		jdata = json.load(urllib2.urlopen(urladdr % (addr, str(i*50))))
+		jdata = json.load(urllib.request.urlopen(urladdr % (addr, str(i*50))))
 		txs.extend(jdata['txs'])	
 
 	assert len(txs) == ntx
@@ -50,9 +50,9 @@ def rscan(addr):
 		x = 0
 		while x < lenx-zi:
 			if inputs[xi][10:74] == inputs[x+zi][10:74]:
-				print (Fore.RED + "\nVulnerable Resued R-Value: ")
-				print(Style.RESET_ALL)
-				print inputs[x+zi][10:74]
+				print((Fore.RED + "\nVulnerable Resued R-Value: "))
+				print((Style.RESET_ALL))
+				print(inputs[x+zi][10:74])
 				bad.append((int(x), str(inputs[x+zi][10:74])))
 				alert += 1
 			x += 1
@@ -61,18 +61,18 @@ def rscan(addr):
 
 
 	if alert < 1:
-		print (Fore.GREEN +"\n\n======================Good pubKey. Not vulnerable=========================.")
-		print(Style.RESET_ALL)
+		print((Fore.GREEN +"\n\n======================Good pubKey. Not vulnerable=========================."))
+		print((Style.RESET_ALL))
 	else:
-		print (Fore.RED + "Address %s has %d reused R value%s!" % (addr, len(bad), "s"[len(bad)==1:]))
+		print((Fore.RED + "Address %s has %d reused R value%s!" % (addr, len(bad), "s"[len(bad)==1:])))
 		return bad
-		print(Style.RESET_ALL)
+		print((Style.RESET_ALL))
 if __name__ == '__main__':
 	from sys import argv
-	print (Fore.YELLOW + """SCAN ADDR""")
+	print((Fore.YELLOW + """SCAN ADDR"""))
 	if len(argv) == 1:
-		addr = raw_input("type address:  ")
-	elif len(argv) == 2 and isinstance(argv[1], basestring):
+		addr = input("type address:  ")
+	elif len(argv) == 2 and isinstance(argv[1], str):
 		addr = str(argv[1])
 	rscan(addr)
 	
